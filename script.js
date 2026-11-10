@@ -21,7 +21,7 @@
     ) && new Set(value.map((person) => person.id)).size === value.length;
   }
 
-  // Keep names and accumulated points when opening data from the previous version.
+  // Đọc localStorage ngay khi mở trang; giữ cả dữ liệu từ phiên bản trước.
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved !== null) {
@@ -57,6 +57,21 @@
     } catch {
       storageWarning = "Chưa lưu được, đừng đóng trang";
       showStatus(storageWarning, true);
+    }
+  }
+
+  function clearAll() {
+    if (!window.confirm("Xóa tất cả người chơi và điểm đã lưu? Thao tác này không thể hoàn tác.")) return;
+    try {
+      // Xóa cả khóa cũ để dữ liệu cũ không được khôi phục khi tải lại trang.
+      localStorage.removeItem(OLD_STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY);
+      players = [];
+      storageWarning = "";
+      render();
+      showStatus("Đã xóa dữ liệu đã lưu");
+    } catch {
+      showStatus("Chưa xóa được dữ liệu đã lưu. Hãy thử lại.", true);
     }
   }
 
@@ -134,6 +149,7 @@
     nameInput.focus();
   });
   document.getElementById("close-dialog").addEventListener("click", () => dialog.close());
+  document.getElementById("clear-all").addEventListener("click", clearAll);
   nameInput.addEventListener("input", () => { nameError.textContent = ""; });
   form.addEventListener("submit", (event) => {
     event.preventDefault();

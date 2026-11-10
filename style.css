@@ -49,7 +49,10 @@ h1 { margin: 10px 0 8px; font-size: 38px; font-weight: 700; letter-spacing: -1.5
 .empty-state h2 { font-size: 17px; font-weight: 600; margin: 0 0 10px; color: #65785a; }
 .empty-state p { margin: 0; font-size: 13px; color: #929e88; line-height: 1.8; }
 .empty-state strong { font-weight: 500; color: #6d8260; }
-footer { text-align: center; color: #9ba491; font-size: 11px; margin-top: 25px; line-height: 1.8; }
+.clear-actions { display: flex; justify-content: center; margin-top: 20px; }
+.clear-button { min-height: 44px; padding: 10px 18px; border: 1px solid #ecd9d1; border-radius: 10px; background: transparent; color: #b4695b; font-size: 12px; }
+.clear-button:hover { background: #faf0ec; }
+footer { text-align: center; color: #9ba491; font-size: 11px; margin-top: 16px; line-height: 1.8; }
 footer strong { font-weight: 500; color: #7b8970; }
 dialog { width: 360px; max-width: calc(100vw - 32px); border: 1px solid #e1e7db; border-radius: 17px; padding: 25px; color: #26372d; box-shadow: 0 20px 80px #173b2526; }
 dialog::backdrop { background: #1c362b55; backdrop-filter: blur(3px); }
