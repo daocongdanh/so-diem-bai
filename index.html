@@ -28,6 +28,7 @@
           <h2>Người chơi <span id="player-count">0</span></h2>
           <span id="save-status" class="save-status" role="status">Tự lưu trên thiết bị</span>
         </div>
+        <p id="score-balance" class="score-balance" role="status" hidden></p>
         <div id="players" class="player-list"></div>
         <div id="empty-state" class="empty-state">
           <span class="empty-icon" aria-hidden="true">♣</span>
@@ -39,8 +40,23 @@
       <div class="clear-actions">
         <button id="clear-all" class="clear-button" type="button">Clear all</button>
       </div>
-      <footer>Mỗi lần bấm <strong>−2</strong> hoặc <strong>+2</strong> điểm.</footer>
+      <footer>Mỗi lần bấm <strong>−2</strong> hoặc <strong>+2</strong> điểm. Bấm vào ô điểm để chỉnh tùy ý.</footer>
     </main>
+
+    <dialog id="fee-notice-dialog" aria-labelledby="fee-notice-title" aria-describedby="fee-notice-message">
+      <form method="dialog">
+        <div class="dialog-heading">
+          <h2 id="fee-notice-title">Thông báo thu phí</h2>
+          <button class="close-button" type="submit" aria-label="Đóng thông báo">×</button>
+        </div>
+        <div id="fee-notice-message" class="notice-message">
+          <p>Mình rất muốn giữ Sổ điểm miễn phí để mọi người cùng dùng, nhưng hiện tại mình không còn đủ kinh phí để tự trang trải chi phí duy trì và vận hành.</p>
+          <p>Vì vậy, từ ngày <strong><time datetime="2027-01-01">01/01/2027</time></strong>, Sổ điểm sẽ bắt đầu thu phí sử dụng để có thể tiếp tục hoạt động.</p>
+          <p>Mong mọi người thông cảm và ủng hộ. Cảm ơn bạn đã đồng hành cùng Sổ điểm!</p>
+        </div>
+        <button type="submit" class="submit-button" autofocus>Đã hiểu</button>
+      </form>
+    </dialog>
 
     <dialog id="player-dialog">
       <form id="player-form">
@@ -52,6 +68,20 @@
         <input id="player-name" name="name" type="text" maxlength="40" placeholder="Nhập tên hoặc biệt danh" autocomplete="off" required>
         <p id="name-error" class="error" role="alert"></p>
         <button type="submit" class="submit-button">Thêm vào bàn</button>
+      </form>
+    </dialog>
+
+    <dialog id="score-dialog" aria-labelledby="score-dialog-title">
+      <form id="score-form" novalidate>
+        <div class="dialog-heading">
+          <h2 id="score-dialog-title">Chỉnh điểm</h2>
+          <button id="close-score-dialog" class="close-button" type="button" aria-label="Đóng">×</button>
+        </div>
+        <label id="score-label" for="player-score-input">Điểm người chơi</label>
+        <input id="player-score-input" name="score" type="text" inputmode="decimal" autocomplete="off" placeholder="Ví dụ: -5 hoặc 3,5" aria-describedby="score-hint score-error" required>
+        <p id="score-hint" class="input-hint">Nhập điểm mới, có thể dùng số âm và tối đa 2 chữ số thập phân.</p>
+        <p id="score-error" class="error" role="alert"></p>
+        <button type="submit" class="submit-button">Lưu điểm</button>
       </form>
     </dialog>
   </body>

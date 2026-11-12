@@ -9,9 +9,16 @@
   const nameInput = document.getElementById("player-name");
   const nameError = document.getElementById("name-error");
   const status = document.getElementById("save-status");
+  const balance = document.getElementById("score-balance");
+  const scoreDialog = document.getElementById("score-dialog");
+  const scoreForm = document.getElementById("score-form");
+  const scoreInput = document.getElementById("player-score-input");
+  const scoreLabel = document.getElementById("score-label");
+  const scoreError = document.getElementById("score-error");
   const formatter = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 2 });
   let players = [];
   let storageWarning = "";
+  let editingScore = null;
 
   function validPlayers(value) {
     return Array.isArray(value) && value.every((person) =>
@@ -89,7 +96,29 @@
   function updateScore(output, person) {
     output.textContent = scoreText(person.score);
     output.className = "player-score" + (person.score > 0 ? " positive" : person.score < 0 ? " negative" : "");
-    output.setAttribute("aria-label", person.name + ": " + formatter.format(person.score / 100) + " điểm");
+    output.setAttribute("aria-label", "Chỉnh điểm cho " + person.name + ": " + formatter.format(person.score / 100) + " điểm");
+  }
+
+  function updateBalance() {
+    balance.hidden = players.length < 2;
+    const total = players.reduce((sum, person) => sum + BigInt(person.score), 0n);
+    const unbalanced = players.length >= 2 && total !== 0n;
+    balance.classList.toggle("warning", unbalanced);
+    balance.textContent = unbalanced
+      ? "Cảnh báo: Tổng điểm đang là " + scoreText(Number(total)) + ". Tổng điểm phải bằng 0."
+      : "Tổng điểm: 0 — Điểm đã cân bằng.";
+  }
+
+  function openScoreDialog(person, output) {
+    editingScore = { person, output };
+    scoreForm.reset();
+    scoreError.textContent = "";
+    scoreInput.removeAttribute("aria-invalid");
+    scoreLabel.textContent = "Điểm của " + person.name;
+    scoreInput.value = String(person.score / 100);
+    scoreDialog.showModal();
+    scoreInput.focus();
+    scoreInput.select();
   }
 
   function changeScore(person, output, change) {
@@ -97,6 +126,7 @@
     if (!Number.isSafeInteger(next)) return;
     person.score = next;
     updateScore(output, person);
+    updateBalance();
     save();
   }
 
@@ -108,8 +138,13 @@
       avatar.setAttribute("aria-hidden", "true");
       const name = element("span", "player-name", person.name);
       const controls = element("div", "score-controls");
-      const output = element("output", "player-score");
+      const output = element("button", "player-score");
+      output.type = "button";
+      output.title = "Bấm để chỉnh điểm";
+      output.setAttribute("aria-haspopup", "dialog");
+      output.setAttribute("aria-controls", "score-dialog");
       output.setAttribute("aria-live", "polite");
+      output.addEventListener("click", () => openScoreDialog(person, output));
       updateScore(output, person);
 
       const minus = element("button", "score-button minus", "−2");
@@ -140,7 +175,41 @@
     list.replaceChildren(fragment);
     document.getElementById("player-count").textContent = players.length;
     document.getElementById("empty-state").hidden = players.length > 0;
+    updateBalance();
   }
+
+  document.getElementById("close-score-dialog").addEventListener("click", () => scoreDialog.close());
+  scoreDialog.addEventListener("close", () => { editingScore = null; });
+  scoreInput.addEventListener("input", () => {
+    scoreError.textContent = "";
+    scoreInput.removeAttribute("aria-invalid");
+  });
+  scoreForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!editingScore) return;
+    const value = scoreInput.value.trim().replace(",", ".");
+    if (!/^[+-]?(?:\d+(?:\.\d{0,2})?|\.\d{1,2})$/.test(value)) {
+      scoreError.textContent = "Nhập số điểm hợp lệ, tối đa 2 chữ số thập phân.";
+      scoreInput.setAttribute("aria-invalid", "true");
+      scoreInput.focus();
+      return;
+    }
+    // Chuyển phần nguyên và phần lẻ riêng để tránh sai số khi nhân số thập phân.
+    const [whole, fraction = ""] = value.replace(/^[+-]/, "").split(".");
+    const magnitude = BigInt(whole || "0") * 100n + BigInt(fraction.padEnd(2, "0"));
+    const score = Number(value.startsWith("-") ? -magnitude : magnitude);
+    if (!Number.isSafeInteger(score)) {
+      scoreError.textContent = "Số điểm quá lớn. Hãy nhập số nhỏ hơn.";
+      scoreInput.setAttribute("aria-invalid", "true");
+      scoreInput.focus();
+      return;
+    }
+    editingScore.person.score = score;
+    updateScore(editingScore.output, editingScore.person);
+    updateBalance();
+    save();
+    scoreDialog.close();
+  });
 
   document.getElementById("add-player").addEventListener("click", () => {
     form.reset();
@@ -173,4 +242,5 @@
 
   render();
   if (storageWarning) showStatus(storageWarning, true);
+  document.getElementById("fee-notice-dialog").showModal();
 })();
